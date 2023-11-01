@@ -3,6 +3,7 @@ import math
 import os
 import random
 import time
+from tqdm import tqdm
 from functools import partial
 from typing import Callable, Dict, Tuple
 
@@ -227,9 +228,10 @@ def main():
         global_step = 0
         max_score = 0
         for epoch in range(0, args.epochs):
+            print(f'Epoch: {epoch+1}/{args.epochs}')
             if train_sampler is not None:
                 train_sampler.set_epoch(epoch)
-            for _, (img, local_labels) in enumerate(loader_train):
+            for _, (img, local_labels) in enumerate(tqdm(loader_train)):
                 img = img.cuda()
                 local_labels = local_labels.long().cuda()
                 with torch.cuda.amp.autocast(False):
