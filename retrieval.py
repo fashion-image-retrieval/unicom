@@ -641,6 +641,8 @@ def extract_feat(
 def evaluation(model: torch.nn.Module,
                dataset_dict: Dict, batch_size: int, num_workers: int):
 
+    # print('dataset_dict', dataset_dict)
+
     if "index" in dataset_dict:
         val, val_label = extract_feat(
             model, dataset_dict["val"], batch_size, num_workers)
@@ -664,7 +666,9 @@ def evaluation(model: torch.nn.Module,
         dataset_q = dataset_dict["query"]
         dataset_g = dataset_dict["gallery"]
         q, q_label = extract_feat(model, dataset_q, batch_size, num_workers)
+        # print(f'q: {q}, q_label: {q_label}')
         g, g_label = extract_feat(model, dataset_g, batch_size, num_workers)
+        # print(f'g: {g}, g_label: {g_label}')
         metric = get_metric(query=q, query_label=q_label,
                             gallery=g, gallery_label=g_label)
         return metric
@@ -694,7 +698,6 @@ class AverageMeter(object):
         self.sum += val * n
         self.count += n
         self.avg = self.sum / self.count
-
 
 def mean_average_precision(predictions, retrieval_solution, max_predictions=100):
     """Computes mean average precision for retrieval prediction.
