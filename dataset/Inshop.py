@@ -34,7 +34,7 @@ class Inshop_Dataset(torch.utils.data.Dataset):
             self.train_ys += [int(key)]
 
         for img_path, key in query:
-            self.query_im_paths.append(os.path.join(self.root, 'Img', img_path))
+            self.query_im_paths.append(os.path.join(self.root, 'Img', img_path)) # when inferencing with occluded data, only query image is occluded!
             self.query_ys += [int(key)]
 
         for img_path, key in gallery:

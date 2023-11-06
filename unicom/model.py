@@ -79,22 +79,37 @@ def _download(url: str, root: str):
 
 
 # copy from https://github.com/openai/CLIP/blob/main/clip/clip.py#L94
-def load(name: str, device: str = "cpu", download_root: str = None):
-    if name in _MODELS:
+def load(path: str, name: str, device: str = "cpu", download_root: str = None):
+    if path in _MODELS:
         model_path = _download(
-            _MODELS[name], download_root or os.path.expanduser("~/.cache/unicom"))
-    elif os.path.isfile(name):
-        model_path = name
+            _MODELS[path], download_root or os.path.expanduser("~/.cache/unicom"))
+    elif os.path.isfile(path):
+        model_path = path
     else:
         raise RuntimeError(
-            f"Model {name} not found; available models = {available_models()}")
+            f"Model {path} not found; available models = {available_models()}")
     with open(model_path, 'rb') as opened_file:
-        state_dict = torch.load(opened_file, map_location="cpu")
+        state_dict = torch.load(opened_file, map_location="cpu")['model_state_dict']
 
     model, transform = load_model_and_transform(name)
-    state_dict_fp32 = {}
-    for k, v in state_dict.items():
-        state_dict_fp32[k] = v.float()
 
-    model.load_state_dict(state_dict)
+
+    if path != name:
+        new_state_dict = {}
+        for k, v in state_dict.items():
+            if 'model' in k:
+                new_state_dict[k[6:]] = v.float()
+            else:
+                new_state_dict[k[6:]] = v.float()
+
+    # state_dict_fp32 = {}
+    # for k, v in state_dict.items():
+    #     if 'model' in k:
+    #         state_dict_fp32[k] = v.float()
+    #     else:
+            # state_dict_fp32[k] = v.float()
+    else:
+        new_state_dict = state_dict
+
+    model.load_state_dict(new_state_dict)
     return model, transform
