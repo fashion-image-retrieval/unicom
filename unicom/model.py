@@ -80,16 +80,28 @@ def _download(url: str, root: str):
 
 # copy from https://github.com/openai/CLIP/blob/main/clip/clip.py#L94
 def load(path: str, name: str, device: str = "cpu", download_root: str = None):
+    if path is None:
+        path = name
+    elif name is None:
+        assert path in _MODELS
+        name = path
+
     if path in _MODELS:
         model_path = _download(
             _MODELS[path], download_root or os.path.expanduser("~/.cache/unicom"))
+        with open(model_path, 'rb') as opened_file:
+            state_dict = torch.load(opened_file, map_location="cpu")
+        print(f"Loaded model {path} from unicom!")
+        
     elif os.path.isfile(path):
         model_path = path
+        with open(model_path, 'rb') as opened_file:
+            state_dict = torch.load(opened_file, map_location="cpu")['model_state_dict']
+        print(f"Loaded model from {path}!")
     else:
         raise RuntimeError(
             f"Model {path} not found; available models = {available_models()}")
-    with open(model_path, 'rb') as opened_file:
-        state_dict = torch.load(opened_file, map_location="cpu")['model_state_dict']
+    
 
     model, transform = load_model_and_transform(name)
 
