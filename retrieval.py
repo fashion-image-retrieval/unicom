@@ -32,6 +32,8 @@ parser.add_argument("--lr_pfc_weight", type=float, default=5.0, help="The weight
 parser.add_argument("--input_size", default=224, type=int, help="The size of the input images for the model.")
 parser.add_argument("--gradient_acc", default=1, type=int, help="The number of times gradients are accumulated before updating the model's parameters.")
 parser.add_argument("--model_name", default="ViT-B/16", help="The name of the pre-trained model to use for feature extraction.")
+parser.add_argument("--model_path", default="ViT-B/16", help="The name of the pre-trained model to use for feature extraction.")
+
 parser.add_argument("--margin_loss_m1", type=float, default=1.0, help="The margin parameter (m1) for the margin loss function.")
 parser.add_argument("--margin_loss_m2", type=float, default=0.3, help="The margin parameter (m1) for the margin loss function.")
 parser.add_argument("--margin_loss_m3", type=float, default=0.0, help="The margin parameter (m3) for the margin loss function.")
@@ -119,7 +121,7 @@ def main():
         distributed.init_process_group(backend="nccl")
 
     if args.eval:
-        model, transform_clip = unicom.load(args.model_name)
+        model, transform_clip = unicom.load(path=args.model_path, name=args.model_name)
         model = model.cuda()
         model = WarpModule(model)
         dataset_dict: Dict = get_dataset(args.dataset, transform_clip)
