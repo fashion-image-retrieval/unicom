@@ -13,3 +13,6 @@ venv/
 
 data/
 __pycache__/
+checkpoints/
+gdrive
+gdrive_2.1.1_linux_386.tar.gz
