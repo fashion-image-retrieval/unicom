@@ -263,6 +263,12 @@ def main():
             if isinstance(score, float):
                 if score > max_score:
                     max_score = score
+
+                    torch.save({
+                        'model_state_dict': model.state_dict(),
+                        'optimizer_state_dict': opt.state_dict(),
+                        'epoch': epoch,
+                    }, f'checkpoints/{epoch}.pt')
             if rank == 0:
                 print(f"eval result is {max_score}, epoch is {epoch}")
             model.train()
