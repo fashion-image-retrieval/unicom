@@ -93,7 +93,7 @@ def get_dataset(dataset_name: str, transform: Callable, transform_train=None) ->
     elif dataset_name == "inshop":
         from dataset import Inshop_Dataset
         trainset = Inshop_Dataset(root, "train", transform_train)
-        query = Inshop_Dataset(root, "query", transform)
+        query = Inshop_Dataset(root, "query", transform, occlusion_type='object')
         gallery = Inshop_Dataset(root, "gallery", transform)
         trainset.num_classes = trainset.nb_classes()
         return {"train": trainset, "query": query, "gallery": gallery, "metric": "rank1"}

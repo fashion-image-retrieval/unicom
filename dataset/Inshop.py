@@ -8,7 +8,7 @@ import PIL.Image
 
 
 class Inshop_Dataset(torch.utils.data.Dataset):
-    def __init__(self, root, mode, transform = None):
+    def __init__(self, root, mode, transform = None, occlusion_type=None):
         self.root = root + '/Inshop_Clothes'
         self.mode = mode
         self.transform = transform
@@ -34,7 +34,21 @@ class Inshop_Dataset(torch.utils.data.Dataset):
             self.train_ys += [int(key)]
 
         for img_path, key in query:
-            self.query_im_paths.append(os.path.join(self.root, 'Img', img_path)) # when inferencing with occluded data, only query image is occluded!
+            if occlusion_type is None:
+                self.query_im_paths.append(os.path.join(self.root, 'Img', img_path)) # when inferencing with occluded data, only query image is occluded!
+            elif occlusion_type == 'black_mask':
+                self.query_im_paths.append(os.path.join(self.root, 'Img', img_path).replace("img", "img_black")) # when inferencing with occluded data, only query image is occluded!
+            elif occlusion_type == 'white_mask':
+                self.query_im_paths.append(os.path.join(self.root, 'Img', img_path).replace("img", "img_white")) # when inferencing with occluded data, only query image is occluded!
+            elif occlusion_type == 'black_box_50':
+                self.query_im_paths.append(os.path.join(self.root, 'Img', img_path).replace("img", "occluded_img")) # when inferencing with occluded data, only query image is occluded!
+            elif occlusion_type == 'random_black_box':
+                self.query_im_paths.append(os.path.join(self.root, 'Img', img_path).replace("img", "80_100_140_160_rand_occluded_img")) # when inferencing with occluded data, only query image is occluded!
+            elif occlusion_type == 'object':
+                self.query_im_paths.append(os.path.join(self.root, 'Img', img_path).replace("img", "object_occluded_img"))
+            elif occlusion_type == 'hand':
+                self.query_im_paths.append(os.path.join(self.root, 'Img', img_path).replace("img", "hand_occluded_img"))
+
             self.query_ys += [int(key)]
 
         for img_path, key in gallery:
