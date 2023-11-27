@@ -36,18 +36,34 @@ class Inshop_Dataset(torch.utils.data.Dataset):
         for img_path, key in query:
             if occlusion_type is None:
                 self.query_im_paths.append(os.path.join(self.root, 'Img', img_path)) # when inferencing with occluded data, only query image is occluded!
-            elif occlusion_type == 'black_mask':
+            elif occlusion_type == 'black_mask_small':
                 self.query_im_paths.append(os.path.join(self.root, 'Img', img_path).replace("img", "img_black")) # when inferencing with occluded data, only query image is occluded!
+            elif occlusion_type == 'black_mask_big_upl':
+                self.query_im_paths.append(os.path.join(self.root, 'Img', img_path).replace("img", "img_upperleft"))
+            elif occlusion_type == 'black_mask_big_upr':
+                self.query_im_paths.append(os.path.join(self.root, 'Img', img_path).replace("img", "img_upperright"))
+            elif occlusion_type == 'black_mask_big_lowl':
+                self.query_im_paths.append(os.path.join(self.root, 'Img', img_path).replace("img", "img_lowerleft"))
+            elif occlusion_type == 'black_mask_big_lowr':
+                self.query_im_paths.append(os.path.join(self.root, 'Img', img_path).replace("img", "img_lowerright"))
             elif occlusion_type == 'white_mask':
                 self.query_im_paths.append(os.path.join(self.root, 'Img', img_path).replace("img", "img_white")) # when inferencing with occluded data, only query image is occluded!
             elif occlusion_type == 'black_box_50':
                 self.query_im_paths.append(os.path.join(self.root, 'Img', img_path).replace("img", "occluded_img")) # when inferencing with occluded data, only query image is occluded!
+            elif occlusion_type == 'black_box_30':
+                self.query_im_paths.append(os.path.join(self.root, 'Img', img_path).replace("img", "mid_30_30_blackbox_inshop_img"))
             elif occlusion_type == 'random_black_box':
                 self.query_im_paths.append(os.path.join(self.root, 'Img', img_path).replace("img", "80_100_140_160_rand_occluded_img")) # when inferencing with occluded data, only query image is occluded!
-            elif occlusion_type == 'object':
+            elif occlusion_type == 'object_big':
                 self.query_im_paths.append(os.path.join(self.root, 'Img', img_path).replace("img", "object_occluded_img"))
-            elif occlusion_type == 'hand':
+            elif occlusion_type == 'object_small':
+                self.query_im_paths.append(os.path.join(self.root, 'Img', img_path).replace("img", "small_object_occluded_img"))
+            elif occlusion_type == 'hand_big':
                 self.query_im_paths.append(os.path.join(self.root, 'Img', img_path).replace("img", "hand_occluded_img"))
+            elif occlusion_type == 'hand_small':
+                self.query_im_paths.append(os.path.join(self.root, 'Img', img_path).replace("img", "small_hand_occluded_img"))
+            elif occlusion_type == 'random':
+                self.query_im_paths.append(os.path.join(self.root, 'Img', img_path).replace("img", "rand_merge_occluded_img"))
 
             self.query_ys += [int(key)]
 
