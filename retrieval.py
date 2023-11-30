@@ -34,6 +34,7 @@ parser.add_argument("--gradient_acc", default=1, type=int, help="The number of t
 parser.add_argument("--model_name", default="ViT-B/16", help="The name of the pre-trained model to use for feature extraction.")
 parser.add_argument("--model_path", default=None, help="The name of the pre-trained model to use for feature extraction.")
 
+parser.add_argument("--data_path", type=str, default='root', help="Path to the dataset directory")
 parser.add_argument("--margin_loss_m1", type=float, default=1.0, help="The margin parameter (m1) for the margin loss function.")
 parser.add_argument("--margin_loss_m2", type=float, default=0.3, help="The margin parameter (m1) for the margin loss function.")
 parser.add_argument("--margin_loss_m3", type=float, default=0.0, help="The margin parameter (m3) for the margin loss function.")
@@ -64,10 +65,12 @@ world_size = int(os.getenv("WORLD_SIZE", "1"))
 torch.cuda.set_device(local_rank)
 
 
-def get_dataset(dataset_name: str, transform: Callable, transform_train=None) -> Dict:
+def get_dataset(dataset_name: str, transform: Callable, transform_train=None, root='data') -> Dict:
+    
+    print(f'root: {root}')
+
     if transform_train is None:
         transform_train = transform
-    root = "data"
 
     if dataset_name == "sop":
         from dataset import SOP
@@ -124,7 +127,7 @@ def main():
         model, transform_clip = unicom.load(path=args.model_path, name=args.model_name)
         model = model.cuda()
         model = WarpModule(model)
-        dataset_dict: Dict = get_dataset(args.dataset, transform_clip)
+        dataset_dict: Dict = get_dataset(args.dataset, transform_clip, root=args.data_path)
         score = evaluation(model, dataset_dict,
                            args.batch_size, args.num_workers)
         if rank == 0:
@@ -150,7 +153,7 @@ def main():
         if args.transform == "origin_clip":
             transform_train = transform_test = transform_clip
         dataset_dict: Dict = get_dataset(
-            args.dataset, transform_test, transform_train)
+            args.dataset, transform_test, transform_train, root=args.data_path)
         dataset_train = dataset_dict['train']
         model.train()
         model.cuda()
@@ -619,10 +622,13 @@ def extract_feat(
         "drop_last": False
     }
     dataloader = DataLoader(dataset_this_rank, **kwargs)
+    # print(f'len(dataset_this_rank): {len(dataset_this_rank)}')
+    # print(f'n_data: {n_data}')
     x = None
     y_np = []
     idx = 0
     for image, label in dataloader:
+        # print(f'image')
         image = image.cuda()
 
         embedding = model(image)
