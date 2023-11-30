@@ -15,7 +15,7 @@ class Inshop_Dataset(torch.utils.data.Dataset):
         self.train_ys, self.train_im_paths = [], []
         self.query_ys, self.query_im_paths = [], []
         self.gallery_ys, self.gallery_im_paths = [], []
-                    
+        
         data_info = np.array(pd.read_table(self.root +'/Eval/list_eval_partition.txt', header=1, delim_whitespace=True))[:,:]
         #Separate into training dataset and query/gallery dataset for testing.
         train, query, gallery = data_info[data_info[:,2]=='train'][:,:2], data_info[data_info[:,2]=='query'][:,:2], data_info[data_info[:,2]=='gallery'][:,:2]
@@ -64,6 +64,38 @@ class Inshop_Dataset(torch.utils.data.Dataset):
                 self.query_im_paths.append(os.path.join(self.root, 'Img', img_path).replace("img", "small_hand_occluded_img"))
             elif occlusion_type == 'random':
                 self.query_im_paths.append(os.path.join(self.root, 'Img', img_path).replace("img", "rand_merge_occluded_img"))
+
+            # Final Version    
+            elif occlusion_type == '10_bottom':
+                self.query_im_paths.append(os.path.join(self.root, 'Img', img_path).replace("img", "inshop_ratio10_bottom_img"))
+            elif occlusion_type == '10_center':
+                self.query_im_paths.append(os.path.join(self.root, 'Img', img_path).replace("img", "inshop_ratio10_center_img"))
+            elif occlusion_type == '10_top':
+                self.query_im_paths.append(os.path.join(self.root, 'Img', img_path).replace("img", "inshop_ratio10_top_img"))
+            elif occlusion_type == '10_random':
+                self.query_im_paths.append(os.path.join(self.root, 'Img', img_path).replace("img", "inshop_ratio10_random_object_img"))
+                
+            elif occlusion_type == '20_center':
+                self.query_im_paths.append(os.path.join(self.root, 'Img', img_path).replace("img", "inshop_ratio20_center_object_img"))
+            elif occlusion_type == '20_random':
+                self.query_im_paths.append(os.path.join(self.root, 'Img', img_path).replace("img", "inshop_ratio20_random_object_img"))
+            elif occlusion_type == '20_top':
+                self.query_im_paths.append(os.path.join(self.root, 'Img', img_path).replace("img", "inshop_ratio20_top_object_img"))
+            elif occlusion_type == '20_bottom':
+                self.query_im_paths.append(os.path.join(self.root, 'Img', img_path).replace("img", "inshop_ratio20_bottom_object_img"))
+
+
+            elif occlusion_type == '5_bottom':
+                self.query_im_paths.append(os.path.join(self.root, 'Img', img_path).replace("img", "inshop_ratio5_bottom_object_img"))
+            elif occlusion_type == '5_center':
+                self.query_im_paths.append(os.path.join(self.root, 'Img', img_path).replace("img", "inshop_ratio5_center_img"))
+            elif occlusion_type == '5_random':
+                self.query_im_paths.append(os.path.join(self.root, 'Img', img_path).replace("img", "inshop_ratio5_random_img"))
+            elif occlusion_type == '5_top':
+                self.query_im_paths.append(os.path.join(self.root, 'Img', img_path).replace("img", "inshop_ratio5_top_img"))
+            else:
+                raise ValueError("Unavailable occlusion type for Inshop Datset!!")
+
 
             self.query_ys += [int(key)]
 
