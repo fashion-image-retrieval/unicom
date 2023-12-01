@@ -23,7 +23,7 @@ from partial_fc import CombinedMarginLoss, PartialFC_V2
 parser = argparse.ArgumentParser(
     description="retrieval is a command-line tool that provides functionality for fine-tuning the Unicom model on retrieval tasks. With this tool, you can easily adjust the unicom model to achieve optimal performance on a variety of image retrieval tasks. Simply specify the task-specific parameters and let the tool handle the rest.")
 parser.add_argument("--batch_size", default=128, type=int, help="The batch size to use for training and inference.")
-parser.add_argument("--dataset", default="cub", help="The dataset to load for training and evaluation.")
+parser.add_argument("--dataset", default="inshop", help="The dataset to load for training and evaluation.")
 parser.add_argument("--debug", default=0, type=int, help="A flag indicating whether to run the code in debug mode (with additional logging or other debugging aids).")
 parser.add_argument("--epochs", type=int, default=32, help="The number of epochs to train the model for.")
 parser.add_argument("--eval", action="store_true", help="A flag indicating whether to run model evaluation after training.")
@@ -33,6 +33,7 @@ parser.add_argument("--input_size", default=224, type=int, help="The size of the
 parser.add_argument("--gradient_acc", default=1, type=int, help="The number of times gradients are accumulated before updating the model's parameters.")
 parser.add_argument("--model_name", default="ViT-B/16", help="The name of the pre-trained model to use for feature extraction.")
 parser.add_argument("--model_path", default=None, help="The name of the pre-trained model to use for feature extraction.")
+parser.add_argument("--occ_type", default=None)
 
 parser.add_argument("--margin_loss_m1", type=float, default=1.0, help="The margin parameter (m1) for the margin loss function.")
 parser.add_argument("--margin_loss_m2", type=float, default=0.3, help="The margin parameter (m1) for the margin loss function.")
@@ -64,7 +65,7 @@ world_size = int(os.getenv("WORLD_SIZE", "1"))
 torch.cuda.set_device(local_rank)
 
 
-def get_dataset(dataset_name: str, transform: Callable, transform_train=None) -> Dict:
+def get_dataset(dataset_name: str, transform: Callable, transform_train=None, occ_type=None) -> Dict:
     if transform_train is None:
         transform_train = transform
     root = "data"
@@ -93,7 +94,7 @@ def get_dataset(dataset_name: str, transform: Callable, transform_train=None) ->
     elif dataset_name == "inshop":
         from dataset import Inshop_Dataset
         trainset = Inshop_Dataset(root, "train", transform_train)
-        query = Inshop_Dataset(root, "query", transform)
+        query = Inshop_Dataset(root, "query", transform, occlusion_type=occ_type)
         gallery = Inshop_Dataset(root, "gallery", transform)
         trainset.num_classes = trainset.nb_classes()
         return {"train": trainset, "query": query, "gallery": gallery, "metric": "rank1"}
@@ -124,7 +125,7 @@ def main():
         model, transform_clip = unicom.load(path=args.model_path, name=args.model_name)
         model = model.cuda()
         model = WarpModule(model)
-        dataset_dict: Dict = get_dataset(args.dataset, transform_clip)
+        dataset_dict: Dict = get_dataset(args.dataset, transform_clip, occ_type=args.occ_type)
         score = evaluation(model, dataset_dict,
                            args.batch_size, args.num_workers)
         if rank == 0:
